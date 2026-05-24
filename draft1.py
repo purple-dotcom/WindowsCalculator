@@ -24,6 +24,9 @@ def click(char):
     if curr == '0':
         if char in operators or char == '0':
             return
+        elif char == '.':
+            entry.insert(tk.END, char)
+            return
         entry.delete(0, tk.END)
         entry.insert(0, char)
 
@@ -59,18 +62,21 @@ tk.Button(frame, text='C', padx=15, pady=5, bg='black', fg='white', width=3, com
 
 def backspace():
     curr = entry.get()
-    if curr:
+    if len(curr) > 1:
         entry.delete(len(curr)-1, tk.END)
+    else:
+        entry.delete(0, tk.END)
+        entry.insert(0, '0')
 tk.Button(frame, text='⌫', padx=15, pady=5, bg='black', fg='white', width=3, command= backspace).grid(row=1,column=3)
 
 
 def clear_till_last_op():
     curr = entry.get()
-    if curr:
-        if any(op in curr for op in operators):
-            pass
-        else:
-            clear_all()
+    if not any(op in curr for op in operators):
+        clear_all()
+        return
+    while entry.get()[-1] not in operators:
+        entry.delete(len(entry.get())-1, tk.END)
 tk.Button(frame, text='CE', padx=15, pady=5, bg='black', fg='white', width=3, command= clear_till_last_op).grid(row=1,column=1)
 
 def inverse():
@@ -114,20 +120,30 @@ tk.Button(frame, text='√x', padx=15, pady=5, bg='black', fg='white', width=3, 
 
 def percentage():
     curr = entry.get()
+    if not any(op in curr for op in operators):
+        entry.delete(0, tk.END)
+        entry.insert(0,'0')
+    else:
+        #keep looking for the last op from the end. then keep looking till you find the start or another operator. that's the no entered last. on this no will the percentage be calculated.
+        #
+        pass
+        
+
 
 root.mainloop()
 
 #to-do:
 
-#clear_till_last_op() -> CE
 #bind keyboard keys
+#pressing '=' or Enter evaluates the expression
 #disable direct typing into the entry widget
 #all input should happen only through button presses / keybind handlers
-#prevent spaces from being inserted
-#pressing '=' or Enter evaluates the expression
-#result replaces the entire expression in the entry widget
-#pressing 'CE' clears only the current number being entered (clear till last operator)
-#implement percentage operator properly
+
+#implement percentage operator properly:
+#if expression has no operators, clear and enter 0. 
+#if '%' clicked after operator, return x%. (x is the no b4 op). eg 7+% -> 7 + 7% of 7
+#if '%' clicked after number(n), return n% of x. (x is the no b4 op). eg 7 + 9% -> 7 + 9% of 7
+
 #implement: 1/x,x²,√x. these operations should apply only to the most recently entered number
 #examples:
 #7+5 -> x² => 7+25
@@ -137,8 +153,7 @@ root.mainloop()
 #space bar behavior:
 #repeat the last valid digit entered
 #do nothing if the last character is an operator or a decimal point
-
-#backspace should restore '0' if expression becomes empty
+#dont add space itself
 
 #handle errors:
 #division by zero
@@ -152,3 +167,6 @@ root.mainloop()
 #dont allow operator to be entered if the last and only char is 0
 #dont allow 0 to be entered if the last and only char is 0
 #replace the initial 0 when a digit is entered
+#backspace should restore '0' if expression becomes empty
+#if first entered char is a decimal, append it to the 0
+#pressing 'CE' clears only the current number being entered (clear till last operator)
