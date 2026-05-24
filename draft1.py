@@ -9,6 +9,7 @@ frame.pack()
 
 entry = tk.Entry(frame, relief=tk.SUNKEN, borderwidth=3, width=30)
 entry.grid(row=0, column=0, columnspan=4, padx=2, pady=2)
+entry.insert(0, '0')
 
 normal_buttons = [                                         ('/', 2, 3),
                     ('7', 3, 0), ('8', 3, 1), ('9', 3, 2), ('×', 3, 3),
@@ -17,11 +18,21 @@ normal_buttons = [                                         ('/', 2, 3),
                                  ('0', 6, 1), ('.', 6, 2)
                 ]
 
-def starting_w_zero():
-    entry.insert(0, '0')
+operators = ['+','−','×','/','%']
+def click(char):
+    curr = entry.get()
+    if curr == '0':
+        if char in operators or char == '0':
+            return
+        entry.delete(0, tk.END)
+        entry.insert(0, char)
 
-def click(num):
-    entry.insert(tk.END, num)
+    elif char in operators:
+        if curr[-1] not in operators:
+            entry.insert(tk.END, char)
+
+    else:
+        entry.insert(tk.END, char)
 
 for txt, r, c in normal_buttons:
     tk.Button(frame, text=txt, padx= 15, pady= 5,bg='black', fg='white', width=3, command= lambda t = txt : click(t)).grid(row=r, column=c, padx=2, pady=2)
@@ -43,6 +54,7 @@ tk.Button(frame, text='=', padx=15, pady=5, bg='black', fg='white', width=3, com
 
 def clear_all():
     entry.delete(0, tk.END)
+    entry.insert(0, '0')
 tk.Button(frame, text='C', padx=15, pady=5, bg='black', fg='white', width=3, command= clear_all).grid(row=1,column=2)
 
 def backspace():
@@ -51,7 +63,7 @@ def backspace():
         entry.delete(len(curr)-1, tk.END)
 tk.Button(frame, text='⌫', padx=15, pady=5, bg='black', fg='white', width=3, command= backspace).grid(row=1,column=3)
 
-operators = ['+','−','×','/','%']
+
 def clear_till_last_op():
     curr = entry.get()
     if curr:
@@ -105,10 +117,17 @@ def percentage():
 
 root.mainloop()
 
+#to-do:
 #dont allow to add space 
 #rather, dont allow user to write directly in the entry widget
-#prevent starting the expression w an operator
-#insert a 0 at the start and after every clear
 #pressing 'space' bar button repeats the last no entered, and doesn't repeat if the last char entered was an operator or the decimal point
 #percentage operator
 #1/x,x^2,x^1/2 all need to be performed on the last entered number 
+
+#done:
+#insert a 0 at the start and after every clear
+#prevent entering an operator as the first char
+#prevent consecutive operators
+#dont allow operator to be entered if the last and only char is 0
+#dont allow 0 to be entered if the last and only char is 0
+#replace the initial 0 when a digit is entered
