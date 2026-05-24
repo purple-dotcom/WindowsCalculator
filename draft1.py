@@ -118,15 +118,32 @@ def percentage():
 root.mainloop()
 
 #to-do:
-#clear_till_last_op() -> CE 
-#add a section above entry, call it b2 while main entry widget is b1. Entering an operator will put the whole expression up until that point into b2, while b1 still shows the number entered b4 the operator. Entering a new number will directly replace the no. in b1. Pressing '=' or pressing 'enter' will clear b2 and show result in b1. Pressing 'CE' will clear b1 and make it 0, b2 will remain. Pressing 'C' will clear everything.
-#bind keys
-#dont allow to add space 
-#rather, dont allow user to write directly in the entry widget
-#pressing 'space' bar button repeats the last no. entered, and doesn't repeat if the last char entered was an operator or the decimal point
-#percentage operator
-#1/x,x^2,x^1/2 all need to be performed on the last entered number (no. showing in b1). The new number after the operation displayed in b1. If b2 was empty, show the particular operation being performed on the number (eg: b2 - 1/(7), b1 - 0.14285....). If b2 was not empty and had an expression (eg:- 7 x ), then the operation being performed will be appended to b2, while the result of the op will be shown in b1 
-# (eg b2- 7 x 1/(7), b1 - 0.14285.... ).
+
+#clear_till_last_op() -> CE
+#bind keyboard keys
+#disable direct typing into the entry widget
+#all input should happen only through button presses / keybind handlers
+#prevent spaces from being inserted
+#pressing '=' or Enter evaluates the expression
+#result replaces the entire expression in the entry widget
+#pressing 'CE' clears only the current number being entered (clear till last operator)
+#implement percentage operator properly
+#implement: 1/x,x²,√x. these operations should apply only to the most recently entered number
+#examples:
+#7+5 -> x² => 7+25
+#7×9 -> √x => 7×3
+#8 -> 1/x => 0.125
+
+#space bar behavior:
+#repeat the last valid digit entered
+#do nothing if the last character is an operator or a decimal point
+
+#backspace should restore '0' if expression becomes empty
+
+#handle errors:
+#division by zero
+#invalid syntax
+#invalid square root
 
 #done:
 #insert a 0 at the start and after every clear
