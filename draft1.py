@@ -81,15 +81,29 @@ tk.Button(frame, text='CE', padx=15, pady=5, bg='black', fg='white', width=3, co
 
 def inverse():
     curr = entry.get()
-    if any(op in curr for op in operators):
-        tkinter.messagebox.showerror("Error", "Invalid input!")
-        return
     try:
-        result = str(float(curr)**-1)
-        if result.endswith('.0'):
-            result = result[:-2]
-        entry.delete(0, tk.END)
-        entry.insert(0, result)
+        if not any(op in curr for op in operators):
+            result = str(float(curr) ** -1)
+            if result.endswith('.0'):
+                result = result[:-2]
+            entry.delete(0, tk.END)
+            entry.insert(0, result)
+
+        else:
+            i = len(curr) - 1
+            last_num = ''
+            while curr[i] not in operators:
+                last_num += curr[i]
+                i -= 1
+            last_num = last_num[::-1]
+            result = str(float(last_num) ** -1)
+
+            if result.endswith('.0'):
+                result = result[:-2]
+            new_expression = curr[:i+1] + result
+            entry.delete(0, tk.END)
+            entry.insert(0, new_expression)
+            
     except ZeroDivisionError:
         tkinter.messagebox.showerror("Error", "Cannot divide by zero!")
 tk.Button(frame, text='1/x', padx=15, pady=5, bg='black', fg='white', width=3, command=inverse).grid(row=2,column=0)
@@ -143,6 +157,7 @@ root.mainloop()
 #if expression has no operators, clear and enter 0. 
 #if '%' clicked after operator, return x%. (x is the no b4 op). eg 7+% -> 7 + 7% of 7
 #if '%' clicked after number(n), return n% of x. (x is the no b4 op). eg 7 + 9% -> 7 + 9% of 7
+#if expression is x op1 y op2 and so on, RETURN TO THIS. FUNCTION UNCLEAR!!
 
 #implement: 1/x,x²,√x. these operations should apply only to the most recently entered number
 #examples:
