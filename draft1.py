@@ -89,6 +89,21 @@ def inverse():
             entry.delete(0, tk.END)
             entry.insert(0, result)
 
+        elif curr[-1] in operators:
+            i = len(curr)-1
+            no_b4_op = ''
+            while i > 0 and curr[i-1] not in operators:
+                no_b4_op += curr[i-1]
+                i -= 1
+            no_b4_op = no_b4_op[::-1]
+            result = str(float(no_b4_op) ** -1)
+
+            if result.endswith('.0'):
+                result = result[:-2]
+            new_expression = curr + result
+            entry.delete(0, tk.END)
+            entry.insert(0, new_expression)
+            
         else:
             i = len(curr) - 1
             last_num = ''
