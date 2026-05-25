@@ -21,35 +21,46 @@ normal_buttons = [                                         ('/', 2, 3),
 operators = ['+','−','×','/','%']
 def click(char):
     curr = entry.get()
-    if curr == '0':
-        if char in operators or char == '0':
-            return
-        elif char == '.':
+    if curr == '0':  #curr is 0
+        if char in operators or char == '0': #if entered char is an op or 0
+            if char == '−': #only allow '-' to be written
+                entry.delete(0,tk.END)
+                entry.insert(0, char)
+                return
+            else: 
+                return
+        elif char == '.': #allow '.' to be entered if curr is 0, then return
             entry.insert(tk.END, char)
             return
-        entry.delete(0, tk.END)
+        entry.delete(0, tk.END) #if entered char is not an op nor 0 nor '.', replace 0 with it (numbers)
         entry.insert(0, char)
 
-    elif char in operators:
-        if curr[-1] not in operators:
+    elif char in operators: #if entered char is an op (for when curr is not 0)
+        if curr[-1] not in operators: #if the last char of curr is not an op
             entry.insert(tk.END, char)
 
-    else:
+    else: #if curr is not 0, nor the entered char is '.', enter normally
         entry.insert(tk.END, char)
 
 for txt, r, c in normal_buttons:
     tk.Button(frame, text=txt, padx= 15, pady= 5,bg='black', fg='white', width=3, command= lambda t = txt : click(t)).grid(row=r, column=c, padx=2, pady=2)
+
+def clean_result(result):
+    result = str(result)
+    if result.endswith('.0'):
+        result = result[:-2]
+    return result
 
 def equal():
     expression = entry.get()
     expression = expression.replace('×', '*')
     expression = expression.replace('−', '-')
     try:
-        result = str(eval(expression))
-        if result.endswith('.0'):
-            result = result[:-2]
+        result = eval(expression)
+        r = clean_result(result)
+        r = r.replace('-','−')
         entry.delete(0, tk.END)
-        entry.insert(0, result)
+        entry.insert(0, r)
     except:
         tkinter.messagebox.showinfo("Error", "Syntax Error!")
         entry.delete(0, tk.END)
@@ -77,17 +88,18 @@ def clear_till_last_op():
         return
     while entry.get()[-1] not in operators:
         entry.delete(len(entry.get())-1, tk.END)
+    if entry.get() == '−' or entry.get() == '-':
+        clear_all()
 tk.Button(frame, text='CE', padx=15, pady=5, bg='black', fg='white', width=3, command= clear_till_last_op).grid(row=1,column=1)
 
 def inverse():
     curr = entry.get()
     try:
         if not any(op in curr for op in operators):
-            result = str(float(curr) ** -1)
-            if result.endswith('.0'):
-                result = result[:-2]
+            result = float(curr) ** -1
+            r = clean_result(result)
             entry.delete(0, tk.END)
-            entry.insert(0, result)
+            entry.insert(0, r)
 
         elif curr[-1] in operators:
             i = len(curr)-1
@@ -96,11 +108,10 @@ def inverse():
                 no_b4_op += curr[i-1]
                 i -= 1
             no_b4_op = no_b4_op[::-1]
-            result = str(float(no_b4_op) ** -1)
+            result = float(no_b4_op) ** -1
 
-            if result.endswith('.0'):
-                result = result[:-2]
-            new_expression = curr + result
+            r = clean_result(result)
+            new_expression = curr + r
             entry.delete(0, tk.END)
             entry.insert(0, new_expression)
             
@@ -111,11 +122,10 @@ def inverse():
                 last_num += curr[i]
                 i -= 1
             last_num = last_num[::-1]
-            result = str(float(last_num) ** -1)
+            result = float(last_num) ** -1
 
-            if result.endswith('.0'):
-                result = result[:-2]
-            new_expression = curr[:i+1] + result
+            r = clean_result(result)
+            new_expression = curr[:i+1] + r
             entry.delete(0, tk.END)
             entry.insert(0, new_expression)
             
@@ -125,26 +135,57 @@ tk.Button(frame, text='1/x', padx=15, pady=5, bg='black', fg='white', width=3, c
 
 def square():
     curr = entry.get()
-    if any(op in curr for op in operators):
-        tkinter.messagebox.showerror("Error", "Invalid input!")
-        return
-    result = str(float(curr)**2)
-    if result.endswith('.0'):
-            result = result[:-2]
-    entry.delete(0, tk.END)
-    entry.insert(0, result)
+    if not any(op in curr for op in operators):
+        result = float(curr) ** 2
+        r = clean_result(result)
+        entry.delete(0, tk.END)
+        entry.insert(0, r)
+
+    elif curr[-1] in operators:
+        i = len(curr) - 1
+        no_b4_op = ''
+        while i > 0 and curr[i-1] not in operators:
+            no_b4_op += curr[i-1]
+            i -= 1
+        no_b4_op = no_b4_op[::-1]
+        result = float(no_b4_op) ** 2
+        r = clean_result(result)
+        new_expression = curr + r
+        entry.delete(0, tk.END)
+        entry.insert(0, new_expression)
+
+    else:
+        i = len(curr) - 1
+        last_num = ''
+        while curr[i] not in operators:
+            last_num += curr[i]
+            i -= 1
+        last_num = last_num[::-1]
+        result = float(last_num) ** 2
+        r = clean_result(result)
+        new_expression = curr[:i+1] + r
+        if new_expression[0] == '−':
+            new_expression = new_expression[1:]
+        entry.delete(0, tk.END)
+        entry.insert(0, new_expression)
 tk.Button(frame, text='x^2', padx=15, pady=5, bg='black', fg='white', width=3, command=square).grid(row=2,column=1)
 
 def square_root():
     curr = entry.get()
-    if any(op in curr for op in operators):
-        tkinter.messagebox.showerror("Error", "Invalid input!")
-        return
-    result = str(float(curr)**(1/2))
-    if result.endswith('.0'):
-            result = result[:-2]
-    entry.delete(0, tk.END)
-    entry.insert(0, result)
+    if not any(op in curr for op in operators):
+        result = float(curr)** (1/2)
+        r = clean_result(result)
+        entry.delete(0, tk.END)
+        entry.insert(0, r)
+
+    elif curr[-1] in operators:
+        i = len(curr)-1
+        no_b4_op = ''
+        while curr[i-1] not in operators:
+            no_b4_op += curr[i-1]
+            i -= 1
+            pass
+
 tk.Button(frame, text='√x', padx=15, pady=5, bg='black', fg='white', width=3, command=square_root).grid(row=2,column=2)
 
 def percentage():
@@ -176,7 +217,7 @@ root.mainloop()
 
 #implement: 1/x,x²,√x. these operations should apply only to the most recently entered number
 #examples:
-#7+5 -> x² => 7+25
+#7+ -> x² => 7+49
 #7×9 -> √x => 7×3
 #8 -> 1/x => 0.125
 
@@ -199,4 +240,5 @@ root.mainloop()
 #replace the initial 0 when a digit is entered
 #backspace should restore '0' if expression becomes empty
 #if first entered char is a decimal, append it to the 0
-#pressing 'CE' clears only the current number being entered (clear till last operator)
+#pressing 'CE' clears only the current number being entered (clear till last operator) (except when the exp is -x, then CE will clear everything)
+#1/x and x^2 completed
