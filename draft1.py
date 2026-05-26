@@ -18,23 +18,25 @@ normal_buttons = [                                         ('/', 2, 3),
                                  ('0', 6, 1), ('.', 6, 2)
                 ]
 
+def delete_insert(x):
+    entry.delete(0,tk.END)
+    entry.insert(0,x)
+
 operators = ['+','−','×','/','%']
 def click(char):
     curr = entry.get()
     if curr == '0':  #curr is 0
         if char in operators or char == '0': #if entered char is an op or 0
             if char == '−': #only allow '-' to be written
-                entry.delete(0,tk.END)
-                entry.insert(0, char)
+                delete_insert(char)
                 return
             else: 
                 return
         elif char == '.': #allow '.' to be entered if curr is 0, then return
             entry.insert(tk.END, char)
             return
-        entry.delete(0, tk.END) #if entered char is not an op nor 0 nor '.', replace 0 with it (numbers)
-        entry.insert(0, char)
-
+        delete_insert(char) #if entered char is not an op nor 0 nor '.', replace 0 with it (numbers)
+        
     elif char in operators: #if entered char is an op (for when curr is not 0)
         if curr[-1] not in operators: #if the last char of curr is not an op
             entry.insert(tk.END, char)
@@ -59,16 +61,14 @@ def equal():
         result = eval(expression)
         r = clean_result(result)
         r = r.replace('-','−')
-        entry.delete(0, tk.END)
-        entry.insert(0, r)
+        delete_insert(r)
     except Exception:
         tkinter.messagebox.showinfo("Error", "Syntax Error!")
         entry.delete(0, tk.END)
 tk.Button(frame, text='=', padx=15, pady=5, bg='black', fg='white', width=3, command=equal).grid(row=6,column=3)
 
 def clear_all():
-    entry.delete(0, tk.END)
-    entry.insert(0, '0')
+    delete_insert('0')
 tk.Button(frame, text='C', padx=15, pady=5, bg='black', fg='white', width=3, command= clear_all).grid(row=1,column=2)
 
 def backspace():
@@ -76,8 +76,7 @@ def backspace():
     if len(curr) > 1:
         entry.delete(len(curr)-1, tk.END)
     else:
-        entry.delete(0, tk.END)
-        entry.insert(0, '0')
+        delete_insert('0')
 tk.Button(frame, text='⌫', padx=15, pady=5, bg='black', fg='white', width=3, command= backspace).grid(row=1,column=3)
 
 
@@ -98,8 +97,7 @@ def inverse():
         if not any(op in curr for op in operators):
             result = float(curr) ** -1
             r = clean_result(result)
-            entry.delete(0, tk.END)
-            entry.insert(0, r)
+            delete_insert(r)
 
         elif curr[-1] in operators:
             i = len(curr)-1
@@ -112,8 +110,7 @@ def inverse():
 
             r = clean_result(result)
             new_expression = curr + r
-            entry.delete(0, tk.END)
-            entry.insert(0, new_expression)
+            delete_insert(new_expression)
             
         else:
             i = len(curr) - 1
@@ -126,8 +123,7 @@ def inverse():
 
             r = clean_result(result)
             new_expression = curr[:i+1] + r
-            entry.delete(0, tk.END)
-            entry.insert(0, new_expression)
+            delete_insert(new_expression)
             
     except ZeroDivisionError:
         tkinter.messagebox.showerror("Error", "Cannot divide by zero!")
@@ -139,8 +135,7 @@ def square():
     if not any(op in curr for op in operators):
         result = float(curr) ** 2
         r = clean_result(result)
-        entry.delete(0, tk.END)
-        entry.insert(0, r)
+        delete_insert(r)
 
     # expression ends w operator
     elif curr[-1] in operators:
@@ -158,8 +153,7 @@ def square():
         result = float(no_b4_op) ** 2
         r = clean_result(result)
         new_expression = curr + r
-        entry.delete(0, tk.END)
-        entry.insert(0, new_expression)
+        delete_insert(new_expression)
     
     # expression contains number after operator
     else:
@@ -175,13 +169,11 @@ def square():
 
         #handle -x
         if curr[0] == '−':
-            entry.delete(0, tk.END)
-            entry.insert(0, r)
+            delete_insert(r)
             return
         
         new_expression = curr[:i+1] + r
-        entry.delete(0, tk.END)
-        entry.insert(0, new_expression)
+        delete_insert(new_expression)
 tk.Button(frame, text='x^2', padx=15, pady=5, bg='black', fg='white', width=3, command=square).grid(row=2,column=1)
 
 def square_root():
@@ -195,8 +187,7 @@ def square_root():
                 return
             result = float(curr) ** (1/2)
             r = clean_result(result)
-            entry.delete(0, tk.END)
-            entry.insert(0, r)
+            delete_insert(r)
 
         # expression ends with operator
         elif curr[-1] in operators:
@@ -209,16 +200,15 @@ def square_root():
 
             # handle -x-
             if curr[0] == '−' and curr.count('−') == 2:
-                # DOUBT
-                no_b4_op = '-' + no_b4_op
-                if float(no_b4_op) < 0:
+                # # DOUBT
+                # no_b4_op = '-' + no_b4_op
+                # if float(no_b4_op) < 0:
                     tkinter.messagebox.showerror("Error", "Invalid square root!")
                     return
             result = float(no_b4_op) ** (1/2)
             r = clean_result(result)
             new_expression = curr + r
-            entry.delete(0, tk.END)
-            entry.insert(0, new_expression)
+            delete_insert(new_expression)
 
         # expression ends with number
         else:
@@ -231,8 +221,7 @@ def square_root():
             result = float(last_num) ** (1/2)
             r = clean_result(result)
             new_expression = curr[:i+1] + r
-            entry.delete(0, tk.END)
-            entry.insert(0, new_expression)
+            delete_insert(new_expression)
     except:
         tkinter.messagebox.showerror("Error", "Invalid square root!")
 tk.Button(frame, text='√x', padx=15, pady=5, bg='black', fg='white', width=3, command=square_root).grid(row=2,column=2)
@@ -241,8 +230,7 @@ def percentage():
     curr = entry.get()
 
     if not any(op in curr for op in operators):
-        entry.delete(0, tk.END)
-        entry.insert(0,'0')
+        delete_insert('0')
 
     elif curr[-1] in operators:
         no_b4_op = ''
@@ -254,31 +242,41 @@ def percentage():
         result = float(no_b4_op) * float(no_b4_op)/100
         r = clean_result(result)
         new_expression = curr + r
-        entry.delete(0, tk.END)
-        entry.insert(0, new_expression)
+        delete_insert(new_expression)
 
     else:
         i = len(curr) - 1
-        def return_last_index_and_num():
-            last_num = ''
-            while curr[i] not in operators:
-                last_num += curr[i]
-                i -= 1
-            return i, last_num   
-        j, last_num = return_last_index_and_num()
+        last_num = ''
+        while i >= 0 and curr[i] not in operators:
+            last_num += curr[i]
+            i -= 1
+        last_num = last_num[::-1]
+        op_index = i  # i now sits on the operator
+
+        j = op_index - 1
         second_last_num = ''
-        while j> 0 and curr[j-1] not in operators:
-            second_last_num += curr[j-1]
+        while j >= 0 and curr[j] not in operators:
+            second_last_num += curr[j]
             j -= 1
         second_last_num = second_last_num[::-1]
+
         result = float(last_num) / 100 * float(second_last_num)
         r = clean_result(result)
-        new_expression = curr[:i+1] + r
-        entry.delete(0, tk.END)
-        entry.insert(0, new_expression)
-
+        new_expression = curr[:op_index + 1] + r
+        delete_insert(new_expression)
 tk.Button(frame, text='%', padx=15, pady=5, bg='black', fg='white', width=3, command=percentage).grid(row=1,column=0)
 
-
+def keyboard_handler(event):
+    if event.keysym == 'Return':
+        equal()
+    elif event.keysym == 'BackSpace':
+        backspace()
+    elif event.keysym == 'Delete':
+        clear_till_last_op()
+    elif event.char in '0123456789.':
+        click(event.char)
+    elif event.char in '+-*/':
+        char = event.char.replace('*', '×').replace('-', '−')
+        click(char)
+root.bind("<Key>", keyboard_handler)
 root.mainloop()
-
