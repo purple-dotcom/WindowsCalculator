@@ -61,7 +61,7 @@ def equal():
         r = r.replace('-','−')
         entry.delete(0, tk.END)
         entry.insert(0, r)
-    except:
+    except Exception:
         tkinter.messagebox.showinfo("Error", "Syntax Error!")
         entry.delete(0, tk.END)
 tk.Button(frame, text='=', padx=15, pady=5, bg='black', fg='white', width=3, command=equal).grid(row=6,column=3)
@@ -135,12 +135,14 @@ tk.Button(frame, text='1/x', padx=15, pady=5, bg='black', fg='white', width=3, c
 
 def square():
     curr = entry.get()
+    # only number
     if not any(op in curr for op in operators):
         result = float(curr) ** 2
         r = clean_result(result)
         entry.delete(0, tk.END)
         entry.insert(0, r)
 
+    # expression ends w operator
     elif curr[-1] in operators:
         i = len(curr) - 1
         no_b4_op = ''
@@ -148,12 +150,18 @@ def square():
             no_b4_op += curr[i-1]
             i -= 1
         no_b4_op = no_b4_op[::-1]
+
+        #handle -x-
+        if curr[0] == '−':
+            no_b4_op = '-'+ no_b4_op
+
         result = float(no_b4_op) ** 2
         r = clean_result(result)
         new_expression = curr + r
         entry.delete(0, tk.END)
         entry.insert(0, new_expression)
-
+    
+    # expression contains number after operator
     else:
         i = len(curr) - 1
         last_num = ''
@@ -161,84 +169,116 @@ def square():
             last_num += curr[i]
             i -= 1
         last_num = last_num[::-1]
+            
         result = float(last_num) ** 2
         r = clean_result(result)
+
+        #handle -x
+        if curr[0] == '−':
+            entry.delete(0, tk.END)
+            entry.insert(0, r)
+            return
+        
         new_expression = curr[:i+1] + r
-        if new_expression[0] == '−':
-            new_expression = new_expression[1:]
         entry.delete(0, tk.END)
         entry.insert(0, new_expression)
 tk.Button(frame, text='x^2', padx=15, pady=5, bg='black', fg='white', width=3, command=square).grid(row=2,column=1)
 
 def square_root():
     curr = entry.get()
-    if not any(op in curr for op in operators):
-        result = float(curr)** (1/2)
-        r = clean_result(result)
-        entry.delete(0, tk.END)
-        entry.insert(0, r)
+    try:
+        # expression is just one number
+        if not any(op in curr for op in operators):
+            # handle -x
+            if float(curr) < 0:
+                tkinter.messagebox.showerror("Error", "Invalid square root!")
+                return
+            result = float(curr) ** (1/2)
+            r = clean_result(result)
+            entry.delete(0, tk.END)
+            entry.insert(0, r)
 
-    elif curr[-1] in operators:
-        i = len(curr)-1
-        no_b4_op = ''
-        while curr[i-1] not in operators:
-            no_b4_op += curr[i-1]
-            i -= 1
-            pass
+        # expression ends with operator
+        elif curr[-1] in operators:
+            i = len(curr) - 1
+            no_b4_op = ''
+            while i > 0 and curr[i-1] not in operators:
+                no_b4_op += curr[i-1]
+                i -= 1
+            no_b4_op = no_b4_op[::-1]
 
+            # handle -x-
+            if curr[0] == '−' and curr.count('−') == 2:
+                # DOUBT
+                no_b4_op = '-' + no_b4_op
+                if float(no_b4_op) < 0:
+                    tkinter.messagebox.showerror("Error", "Invalid square root!")
+                    return
+            result = float(no_b4_op) ** (1/2)
+            r = clean_result(result)
+            new_expression = curr + r
+            entry.delete(0, tk.END)
+            entry.insert(0, new_expression)
+
+        # expression ends with number
+        else:
+            i = len(curr) - 1
+            last_num = ''
+            while curr[i] not in operators:
+                last_num += curr[i]
+                i -= 1
+            last_num = last_num[::-1]
+            result = float(last_num) ** (1/2)
+            r = clean_result(result)
+            new_expression = curr[:i+1] + r
+            entry.delete(0, tk.END)
+            entry.insert(0, new_expression)
+    except:
+        tkinter.messagebox.showerror("Error", "Invalid square root!")
 tk.Button(frame, text='√x', padx=15, pady=5, bg='black', fg='white', width=3, command=square_root).grid(row=2,column=2)
 
 def percentage():
     curr = entry.get()
+
     if not any(op in curr for op in operators):
         entry.delete(0, tk.END)
         entry.insert(0,'0')
+
+    elif curr[-1] in operators:
+        no_b4_op = ''
+        i = len(curr) - 1
+        while i > 0 and curr[i-1] not in operators:
+            no_b4_op += curr[i-1]
+            i -= 1
+        no_b4_op = no_b4_op[::-1]
+        result = float(no_b4_op) * float(no_b4_op)/100
+        r = clean_result(result)
+        new_expression = curr + r
+        entry.delete(0, tk.END)
+        entry.insert(0, new_expression)
+
     else:
-        #keep looking for the last op from the end. then keep looking till you find the start or another operator. that's the no entered last. on this no will the percentage be calculated.
-        #
-        pass
-        
+        i = len(curr) - 1
+        def return_last_index_and_num():
+            last_num = ''
+            while curr[i] not in operators:
+                last_num += curr[i]
+                i -= 1
+            return i, last_num   
+        j, last_num = return_last_index_and_num()
+        second_last_num = ''
+        while j> 0 and curr[j-1] not in operators:
+            second_last_num += curr[j-1]
+            j -= 1
+        second_last_num = second_last_num[::-1]
+        result = float(last_num) / 100 * float(second_last_num)
+        r = clean_result(result)
+        new_expression = curr[:i+1] + r
+        entry.delete(0, tk.END)
+        entry.insert(0, new_expression)
+
+tk.Button(frame, text='%', padx=15, pady=5, bg='black', fg='white', width=3, command=percentage).grid(row=1,column=0)
 
 
 root.mainloop()
 
-#to-do:
-
-#bind keyboard keys
-#pressing '=' or Enter evaluates the expression
-#disable direct typing into the entry widget
-#all input should happen only through button presses / keybind handlers
-
-#implement percentage operator properly:
-#if expression has no operators, clear and enter 0. 
-#if '%' clicked after operator, return x%. (x is the no b4 op). eg 7+% -> 7 + 7% of 7
-#if '%' clicked after number(n), return n% of x. (x is the no b4 op). eg 7 + 9% -> 7 + 9% of 7
-#if expression is x op1 y op2 and so on, RETURN TO THIS. FUNCTION UNCLEAR!!
-
-#implement: 1/x,x²,√x. these operations should apply only to the most recently entered number
-#examples:
-#7+ -> x² => 7+49
-#7×9 -> √x => 7×3
-#8 -> 1/x => 0.125
-
-#space bar behavior:
-#repeat the last valid digit entered
-#do nothing if the last character is an operator or a decimal point
-#dont add space itself
-
-#handle errors:
-#division by zero
-#invalid syntax
-#invalid square root
-
-#done:
-#insert a 0 at the start and after every clear
-#prevent entering an operator as the first char
-#prevent consecutive operators
-#dont allow operator to be entered if the last and only char is 0
-#dont allow 0 to be entered if the last and only char is 0
-#replace the initial 0 when a digit is entered
-#backspace should restore '0' if expression becomes empty
-#if first entered char is a decimal, append it to the 0
-#pressing 'CE' clears only the current number being entered (clear till last operator) (except when the exp is -x, then CE will clear everything)
-#1/x and x^2 completed
