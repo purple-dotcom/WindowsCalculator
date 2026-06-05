@@ -7,7 +7,7 @@ root.title('Calci')
 frame = tk.Frame(root, bg="darkgray", padx=10, pady=10)
 frame.pack()
 
-entry = tk.Entry(frame, relief=tk.SUNKEN, borderwidth=3, width=30)
+entry = tk.Entry(frame, relief=tk.SUNKEN, borderwidth=3, width=30, takefocus=False, state='readonly')
 entry.grid(row=0, column=0, columnspan=4, padx=2, pady=2)
 entry.insert(0, '0')
 
@@ -19,8 +19,10 @@ normal_buttons = [                                         ('/', 2, 3),
                 ]
 
 def delete_insert(x):
+    entry.config(state='normal')
     entry.delete(0,tk.END)
     entry.insert(0,x)
+    entry.config(state='readonly')
 
 operators = ['+','−','×','/','%']
 def click(char):
@@ -33,16 +35,22 @@ def click(char):
             else: 
                 return
         elif char == '.': #allow '.' to be entered if curr is 0, then return
+            entry.config(state='normal')
             entry.insert(tk.END, char)
+            entry.config(state='readonly')
             return
         delete_insert(char) #if entered char is not an op nor 0 nor '.', replace 0 with it (numbers)
         
     elif char in operators: #if entered char is an op (for when curr is not 0)
         if curr[-1] not in operators: #if the last char of curr is not an op
+            entry.config(state='normal')
             entry.insert(tk.END, char)
+            entry.config(state='readonly')
 
     else: #if curr is not 0, nor the entered char is '.', enter normally
+        entry.config(state='normal')
         entry.insert(tk.END, char)
+        entry.config(state='readonly')
 
 for txt, r, c in normal_buttons:
     tk.Button(frame, text=txt, padx= 15, pady= 5,bg='black', fg='white', width=3, command= lambda t = txt : click(t)).grid(row=r, column=c, padx=2, pady=2)
@@ -64,7 +72,9 @@ def equal():
         delete_insert(r)
     except Exception:
         tkinter.messagebox.showinfo("Error", "Syntax Error!")
+        entry.config(state='normal')
         entry.delete(0, tk.END)
+        entry.config(state='readonly')
 tk.Button(frame, text='=', padx=15, pady=5, bg='black', fg='white', width=3, command=equal).grid(row=6,column=3)
 
 def clear_all():
@@ -74,7 +84,9 @@ tk.Button(frame, text='C', padx=15, pady=5, bg='black', fg='white', width=3, com
 def backspace():
     curr = entry.get()
     if len(curr) > 1:
+        entry.config(state='normal')
         entry.delete(len(curr)-1, tk.END)
+        entry.config(state='readonly')
     else:
         delete_insert('0')
 tk.Button(frame, text='⌫', padx=15, pady=5, bg='black', fg='white', width=3, command= backspace).grid(row=1,column=3)
@@ -86,7 +98,9 @@ def clear_till_last_op():
         clear_all()
         return
     while entry.get()[-1] not in operators:
+        entry.config(state='normal')
         entry.delete(len(entry.get())-1, tk.END)
+        entry.config(state='readonly')
     if entry.get() == '−' or entry.get() == '-':
         clear_all()
 tk.Button(frame, text='CE', padx=15, pady=5, bg='black', fg='white', width=3, command= clear_till_last_op).grid(row=1,column=1)
