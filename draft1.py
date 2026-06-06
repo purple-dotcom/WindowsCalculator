@@ -1,5 +1,6 @@
 import tkinter as tk
 import tkinter.messagebox
+import re
 
 root = tk.Tk()
 root.title('Calci')
@@ -9,7 +10,6 @@ frame.pack()
 
 entry = tk.Entry(frame, relief=tk.SUNKEN, borderwidth=3, width=30, takefocus=False, state='readonly')
 entry.grid(row=0, column=0, columnspan=4, padx=2, pady=2)
-entry.insert(0, '0')
 
 normal_buttons = [                                         ('/', 2, 3),
                     ('7', 3, 0), ('8', 3, 1), ('9', 3, 2), ('×', 3, 3),
@@ -23,6 +23,8 @@ def delete_insert(x):
     entry.delete(0,tk.END)
     entry.insert(0,x)
     entry.config(state='readonly')
+
+delete_insert('0')
 
 operators = ['+','−','×','/','%']
 def click(char):
@@ -56,10 +58,7 @@ for txt, r, c in normal_buttons:
     tk.Button(frame, text=txt, padx= 15, pady= 5,bg='black', fg='white', width=3, command= lambda t = txt : click(t)).grid(row=r, column=c, padx=2, pady=2)
 
 def clean_result(result):
-    result = str(result)
-    if result.endswith('.0'):
-        result = result[:-2]
-    return result
+    return f"{result:.10g}"
 
 def equal():
     expression = entry.get()
@@ -72,9 +71,7 @@ def equal():
         delete_insert(r)
     except Exception:
         tkinter.messagebox.showinfo("Error", "Syntax Error!")
-        entry.config(state='normal')
-        entry.delete(0, tk.END)
-        entry.config(state='readonly')
+        clear_all()
 tk.Button(frame, text='=', padx=15, pady=5, bg='black', fg='white', width=3, command=equal).grid(row=6,column=3)
 
 def clear_all():
@@ -97,10 +94,10 @@ def clear_till_last_op():
     if not any(op in curr for op in operators):
         clear_all()
         return
+    entry.config(state='normal')
     while entry.get()[-1] not in operators:
-        entry.config(state='normal')
         entry.delete(len(entry.get())-1, tk.END)
-        entry.config(state='readonly')
+    entry.config(state='readonly')
     if entry.get() == '−' or entry.get() == '-':
         clear_all()
 tk.Button(frame, text='CE', padx=15, pady=5, bg='black', fg='white', width=3, command= clear_till_last_op).grid(row=1,column=1)
@@ -114,12 +111,7 @@ def inverse():
             delete_insert(r)
 
         elif curr[-1] in operators:
-            i = len(curr)-1
-            no_b4_op = ''
-            while i > 0 and curr[i-1] not in operators:
-                no_b4_op += curr[i-1]
-                i -= 1
-            no_b4_op = no_b4_op[::-1]
+            no_b4_op = re.findall(r'[\d.]+', curr)[-1]
             result = float(no_b4_op) ** -1
 
             r = clean_result(result)
@@ -127,16 +119,13 @@ def inverse():
             delete_insert(new_expression)
             
         else:
-            i = len(curr) - 1
-            last_num = ''
-            while curr[i] not in operators:
-                last_num += curr[i]
-                i -= 1
-            last_num = last_num[::-1]
+            match = re.search(r'[\d.]+$', curr)
+            last_num = match.group()
+            start_index = match.start()
             result = float(last_num) ** -1
 
             r = clean_result(result)
-            new_expression = curr[:i+1] + r
+            new_expression = curr[:start_index] + r
             delete_insert(new_expression)
             
     except ZeroDivisionError:
@@ -153,12 +142,7 @@ def square():
 
     # expression ends w operator
     elif curr[-1] in operators:
-        i = len(curr) - 1
-        no_b4_op = ''
-        while i > 0 and curr[i-1] not in operators:
-            no_b4_op += curr[i-1]
-            i -= 1
-        no_b4_op = no_b4_op[::-1]
+        no_b4_op = re.findall(r'[\d.]+', curr)[-1]
 
         #handle -x-
         if curr[0] == '−':
@@ -171,12 +155,9 @@ def square():
     
     # expression contains number after operator
     else:
-        i = len(curr) - 1
-        last_num = ''
-        while curr[i] not in operators:
-            last_num += curr[i]
-            i -= 1
-        last_num = last_num[::-1]
+        match = re.search(r'[\d.]+$', curr)
+        last_num = match.group()
+        start_index = match.start()
             
         result = float(last_num) ** 2
         r = clean_result(result)
@@ -186,7 +167,7 @@ def square():
             delete_insert(r)
             return
         
-        new_expression = curr[:i+1] + r
+        new_expression = curr[:start_index] + r
         delete_insert(new_expression)
 tk.Button(frame, text='x^2', padx=15, pady=5, bg='black', fg='white', width=3, command=square).grid(row=2,column=1)
 
@@ -205,20 +186,12 @@ def square_root():
 
         # expression ends with operator
         elif curr[-1] in operators:
-            i = len(curr) - 1
-            no_b4_op = ''
-            while i > 0 and curr[i-1] not in operators:
-                no_b4_op += curr[i-1]
-                i -= 1
-            no_b4_op = no_b4_op[::-1]
+            no_b4_op = re.findall(r'[\d.]+', curr)[-1]
 
             # handle -x-
-            if curr[0] == '−' and curr.count('−') == 2:
-                # # DOUBT
-                # no_b4_op = '-' + no_b4_op
-                # if float(no_b4_op) < 0:
-                    tkinter.messagebox.showerror("Error", "Invalid square root!")
-                    return
+            if curr[0] == '−': #changing. the op after the no doesnt matter
+                tkinter.messagebox.showerror("Error", "Invalid square root!")
+                return
             result = float(no_b4_op) ** (1/2)
             r = clean_result(result)
             new_expression = curr + r
@@ -226,15 +199,12 @@ def square_root():
 
         # expression ends with number
         else:
-            i = len(curr) - 1
-            last_num = ''
-            while curr[i] not in operators:
-                last_num += curr[i]
-                i -= 1
-            last_num = last_num[::-1]
+            match = re.search(r'[\d.]+$', curr)
+            last_num = match.group()
+            start_index = match.start()
             result = float(last_num) ** (1/2)
             r = clean_result(result)
-            new_expression = curr[:i+1] + r
+            new_expression = curr[:start_index] + r
             delete_insert(new_expression)
     except:
         tkinter.messagebox.showerror("Error", "Invalid square root!")
@@ -247,36 +217,22 @@ def percentage():
         delete_insert('0')
 
     elif curr[-1] in operators:
-        no_b4_op = ''
-        i = len(curr) - 1
-        while i > 0 and curr[i-1] not in operators:
-            no_b4_op += curr[i-1]
-            i -= 1
-        no_b4_op = no_b4_op[::-1]
+        no_b4_op = re.findall(r'[\d.]+', curr)[-1]
         result = float(no_b4_op) * float(no_b4_op)/100
         r = clean_result(result)
         new_expression = curr + r
         delete_insert(new_expression)
 
     else:
-        i = len(curr) - 1
-        last_num = ''
-        while i >= 0 and curr[i] not in operators:
-            last_num += curr[i]
-            i -= 1
-        last_num = last_num[::-1]
-        op_index = i  # i now sits on the operator
+        second_last_num = re.findall(r'[\d.]+', curr)[-2]
 
-        j = op_index - 1
-        second_last_num = ''
-        while j >= 0 and curr[j] not in operators:
-            second_last_num += curr[j]
-            j -= 1
-        second_last_num = second_last_num[::-1]
+        match = re.search(r'[\d.]+$', curr)
+        last_num = match.group()
+        start_index = match.start()
 
         result = float(last_num) / 100 * float(second_last_num)
         r = clean_result(result)
-        new_expression = curr[:op_index + 1] + r
+        new_expression = curr[:start_index] + r
         delete_insert(new_expression)
 tk.Button(frame, text='%', padx=15, pady=5, bg='black', fg='white', width=3, command=percentage).grid(row=1,column=0)
 
