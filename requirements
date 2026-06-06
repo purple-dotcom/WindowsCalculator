@@ -1,0 +1,40 @@
+#to-do:
+
+#bind keyboard keys
+#pressing '=' or Enter evaluates the expression
+#disable direct typing into the entry widget
+#all input should happen only through button presses / keybind handlers
+
+#implement percentage operator properly:
+#if expression has no operators, clear and enter 0. 
+#if '%' clicked after operator, return x%. (x is the no b4 op). eg 7+% -> 7 + 7% of 7
+#if '%' clicked after number(n), return n% of x. (x is the no b4 op). eg 7 + 9% -> 7 + 9% of 7
+#if expression is x op1 y op2 and so on, RETURN TO THIS. FUNCTION UNCLEAR!!
+
+#implement: 1/x,x²,√x. these operations should apply only to the most recently entered number
+#examples:
+#7+ -> x² => 7+49
+#7×9 -> √x => 7×3
+#8 -> 1/x => 0.125
+
+#space bar behavior:
+#repeat the last valid digit entered
+#do nothing if the last character is an operator or a decimal point
+#dont add space itself
+
+#handle errors:
+#division by zero
+#invalid syntax
+#invalid square root
+
+#done:
+#insert a 0 at the start and after every clear
+#prevent entering an operator as the first char, except '-'
+#prevent consecutive operators
+#dont allow operator to be entered if the last and only char is 0, except '-'
+#dont allow 0 to be entered if the last and only char is 0
+#replace the initial 0 when a digit is entered
+#backspace should restore '0' if expression becomes empty
+#if first entered char is a decimal, append it to the 0
+#pressing 'CE' clears only the current number being entered (clear till last operator) (except when the exp is -x, then CE will clear everything)
+#1/x and x^2 completed
