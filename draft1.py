@@ -1,11 +1,12 @@
 import tkinter as tk
 import tkinter.messagebox
 import re
+from contextlib import contextmanager
 
 class Calculator:
     def __init__(self, root):
         self.root = root
-        self.root.title('Calci')
+        self.root.title('Calci')    
         self.operators = ['+', '−', '×', '/', '%']
         self.normal_buttons = [                                         ('/', 2, 3),
                                 ('7', 3, 0), ('8', 3, 1), ('9', 3, 2), ('×', 3, 3),
@@ -34,11 +35,16 @@ class Calculator:
         tk.Button(self.frame, text='%', padx=15, pady=5, bg='black', fg='white', width=3, command=self.percentage).grid(row=1,column=0)
         self.root.bind("<Key>", self.keyboard_handler)
 
-    def delete_insert(self, x):
+    @contextmanager
+    def unlocked(self):
         self.entry.config(state='normal')
-        self.entry.delete(0,tk.END)
-        self.entry.insert(0,x)
+        yield
         self.entry.config(state='readonly')
+
+    def delete_insert(self, x):
+        with self.unlocked():
+            self.entry.delete(0,tk.END)
+            self.entry.insert(0,x)
 
     def click(self, char):
         curr = self.entry.get()
@@ -50,22 +56,19 @@ class Calculator:
                 else: 
                     return
             elif char == '.': #allow '.' to be entered if curr is 0, then return
-                self.entry.config(state='normal')
-                self.entry.insert(tk.END, char)
-                self.entry.config(state='readonly')
+                with self.unlocked():
+                    self.entry.insert(tk.END, char)
                 return
             self.delete_insert(char) #if entered char is not an op nor 0 nor '.', replace 0 with it (numbers)
         
         elif char in self.operators: #if entered char is an op (for when curr is not 0)
             if curr[-1] not in self.operators: #if the last char of curr is not an op
-                self.entry.config(state='normal')
-                self.entry.insert(tk.END, char)
-                self.entry.config(state='readonly')
+                with self.unlocked():
+                    self.entry.insert(tk.END, char)
 
         else: #if curr is not 0, nor the entered char is '.', enter normally
-            self.entry.config(state='normal')
-            self.entry.insert(tk.END, char)
-            self.entry.config(state='readonly')
+            with self.unlocked():
+                self.entry.insert(tk.END, char)
 
     def clean_result(self, result):
         return f"{result:.10g}"
@@ -89,9 +92,8 @@ class Calculator:
     def backspace(self):
         curr = self.entry.get()
         if len(curr) > 1:
-            self.entry.config(state='normal')
-            self.entry.delete(len(curr)-1, tk.END)
-            self.entry.config(state='readonly')
+            with self.unlocked():
+                self.entry.delete(len(curr)-1, tk.END)
         else:
             self.delete_insert('0')
 
@@ -100,10 +102,9 @@ class Calculator:
         if not any(op in curr for op in self.operators):
             self.clear_all()
             return
-        self.entry.config(state='normal')
-        while self.entry.get()[-1] not in self.operators:
-            self.entry.delete(len(self.entry.get())-1, tk.END)
-        self.entry.config(state='readonly')
+        with self.unlocked():
+            while self.entry.get()[-1] not in self.operators:
+                self.entry.delete(len(self.entry.get())-1, tk.END)
         if self.entry.get() == '−' or self.entry.get() == '-':
             self.clear_all()
 
