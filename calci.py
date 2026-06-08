@@ -6,33 +6,34 @@ from contextlib import contextmanager
 class Calculator:
     def __init__(self, root):
         self.root = root
-        self.root.title('Calci')    
+        self.root.title('Calci') 
+        self.root.resizable(False, False)   
         self.operators = ['+', '−', '×', '/', '%']
-        self.normal_buttons = [                                         ('/', 2, 3),
+        self.normal_buttons = [                                        ('/', 2, 3),
                                 ('7', 3, 0), ('8', 3, 1), ('9', 3, 2), ('×', 3, 3),
                                 ('4', 4, 0), ('5', 4, 1), ('6', 4, 2), ('−', 4, 3),
                                 ('1', 5, 0), ('2', 5, 1), ('3', 5, 2), ('+', 5, 3),
-                                            ('0', 6, 1), ('.', 6, 2)
+                                             ('0', 6, 1), ('.', 6, 2)
                             ]
 
         self.frame = tk.Frame(self.root, bg="darkgray", padx=10, pady=10)
         self.frame.pack()
 
-        self.entry = tk.Entry(self.frame, relief=tk.SUNKEN, borderwidth=3, width=30, takefocus=False, state='readonly')
+        self.entry = tk.Entry(self.frame, relief=tk.SUNKEN, borderwidth=3, width=35, takefocus=False, state='readonly', justify="right", font=("Segoe UI",16))
         self.entry.grid(row=0, column=0, columnspan=4, padx=2, pady=2)
         self.delete_insert('0')
 
         for txt, r, c in self.normal_buttons:
-            tk.Button(self.frame, text=txt, padx= 15, pady= 5,bg='black', fg='white', width=3, command= lambda t = txt : self.click(t)).grid(row=r, column=c, padx=2, pady=2)
+            tk.Button(self.frame, text=txt, padx= 15, pady= 5,bg='black', fg='white', font=("Segoe UI",12), width=6, height = 2, command= lambda t = txt : self.click(t)).grid(row=r, column=c, padx=2, pady=2)
 
-        tk.Button(self.frame, text='=', padx=15, pady=5, bg='black', fg='white', width=3, command=self.equal).grid(row=6,column=3)
-        tk.Button(self.frame, text='C', padx=15, pady=5, bg='black', fg='white', width=3, command= self.clear_all).grid(row=1,column=2)
-        tk.Button(self.frame, text='⌫', padx=15, pady=5, bg='black', fg='white', width=3, command= self.backspace).grid(row=1,column=3)
-        tk.Button(self.frame, text='CE', padx=15, pady=5, bg='black', fg='white', width=3, command= self.clear_till_last_op).grid(row=1,column=1)
-        tk.Button(self.frame, text='1/x', padx=15, pady=5, bg='black', fg='white', width=3, command=self.inverse).grid(row=2,column=0)
-        tk.Button(self.frame, text='x^2', padx=15, pady=5, bg='black', fg='white', width=3, command=self.square).grid(row=2,column=1)
-        tk.Button(self.frame, text='√x', padx=15, pady=5, bg='black', fg='white', width=3, command=self.square_root).grid(row=2,column=2)
-        tk.Button(self.frame, text='%', padx=15, pady=5, bg='black', fg='white', width=3, command=self.percentage).grid(row=1,column=0)
+        tk.Button(self.frame, text='=', padx=15, pady=5, bg='black', fg='white',font=("Segoe UI",12), width=6, height = 2, command=self.equal).grid(row=6,column=3,padx=2, pady=2)
+        tk.Button(self.frame, text='C', padx=15, pady=5, bg='black', fg='white',font=("Segoe UI",12), width=6, height = 2, command= self.clear_all).grid(row=1,column=2,padx=2, pady=2)
+        tk.Button(self.frame, text='⌫', padx=15, pady=5, bg='black', fg='white',font=("Segoe UI",12), width=6, height = 2, command= self.backspace).grid(row=1,column=3,padx=2, pady=2)
+        tk.Button(self.frame, text='CE', padx=15, pady=5, bg='black', fg='white',font=("Segoe UI",12), width=6, height = 2, command= self.clear_till_last_op).grid(row=1,column=1,padx=2, pady=2)
+        tk.Button(self.frame, text='1/x', padx=15, pady=5, bg='black', fg='white',font=("Segoe UI",12), width=6, height = 2, command=self.inverse).grid(row=2,column=0,padx=2, pady=2)
+        tk.Button(self.frame, text='x^2', padx=15, pady=5, bg='black', fg='white',font=("Segoe UI",12), width=6, height = 2, command=self.square).grid(row=2,column=1,padx=2, pady=2)
+        tk.Button(self.frame, text='√x', padx=15, pady=5, bg='black', fg='white',font=("Segoe UI",12), width=6, height = 2, command=self.square_root).grid(row=2,column=2,padx=2, pady=2)
+        tk.Button(self.frame, text='%', padx=15, pady=5, bg='black', fg='white',font=("Segoe UI",12), width=6, height = 2, command=self.percentage).grid(row=1,column=0,padx=2, pady=2)
         self.root.bind("<Key>", self.keyboard_handler)
 
     @contextmanager
